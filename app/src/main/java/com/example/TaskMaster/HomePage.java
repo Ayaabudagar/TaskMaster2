@@ -11,14 +11,29 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.room.Room;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomePage extends AppCompatActivity {
-
+AppDataBase appDataBase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
+        .build();
+        List<Task> taskList = appDataBase.taskDao().getAll();
+        // get the recycler view
+        RecyclerView allTasksRecuclerView = findViewById(R.id.rs);
+        // set a layout manager for this view
+        allTasksRecuclerView.setLayoutManager(new LinearLayoutManager(this));
+        // set the adapter for this recyclerView
+        allTasksRecuclerView.setAdapter(new TaskAdapter(taskList));
+
+
+
 
         Button addTask = (Button) findViewById(R.id.button);
         addTask.setOnClickListener(new View.OnClickListener() {
