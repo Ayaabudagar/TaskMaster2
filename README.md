@@ -66,3 +66,11 @@ Refactor your homepage to use a RecyclerView for displaying Task data. This shou
 
 ## lab 29
 Saving Data with Room
+
+## lab 31
+Espresso Testing
+Add Espresso to the application, and use it to test basic functionality of the main components of my application. For example:
+
+assert that important UI elements are displayed on the page
+tap on a task, and assert that the resulting activity displays the name of that task
+edit the user’s username, and assert that it says the correct thing on the homepage
