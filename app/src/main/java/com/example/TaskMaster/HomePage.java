@@ -2,16 +2,27 @@ package com.example.TaskMaster;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
+
+import com.amplifyframework.AmplifyException;
+import com.amplifyframework.api.aws.AWSApiPlugin;
+import com.amplifyframework.api.graphql.model.ModelQuery;
+import com.amplifyframework.core.Amplify;
+import com.amplifyframework.datastore.generated.model.Todo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +33,29 @@ AppDataBase appDataBase;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+        try {
+            // Add these lines to add the AWSApiPlugin plugins
+            Amplify.addPlugin(new AWSApiPlugin());
+            Amplify.configure(getApplicationContext());
+
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
+
+
+
+
+
 appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
         .build();
-        List<Task> taskList = appDataBase.taskDao().getAll();
-        // get the recycler view
-        RecyclerView allTasksRecuclerView = findViewById(R.id.rs);
-        // set a layout manager for this view
-        allTasksRecuclerView.setLayoutManager(new LinearLayoutManager(this));
-        // set the adapter for this recyclerView
-        allTasksRecuclerView.setAdapter(new TaskAdapter(taskList));
+//        List<Task> taskList = appDataBase.taskDao().getAll();
+//        // get the recycler view
+//        RecyclerView allTasksRecuclerView = findViewById(R.id.rs);
+//        // set a layout manager for this view
+//        allTasksRecuclerView.setLayoutManager(new LinearLayoutManager(this));
+//        // set the adapter for this recyclerView
+//        allTasksRecuclerView.setAdapter(new TaskAdapter(taskList));
 
 
 
@@ -83,14 +108,35 @@ appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "
                 startActivity(toSportPagePage);
             }
         });
-        ArrayList<Task> allTasks = new ArrayList<Task>();
-        allTasks.add(new Task("CodeChallenges401","Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempore debitis suscipit sint cum magni quibusdam veritatis explicabo temporibus officia adipisci vitae, voluptates dolore dignissimos fuga laborum laboriosam molestiae doloribus commodi.","new"));
-        allTasks.add(new Task("Labs401"," Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempore debitis suscipit sint cum magni quibusdam veritatis explicabo temporibus officia adipisci vitae, voluptates dolore dignissimos fuga laborum laboriosam molestiae doloribus commodi. ","new"));
-        allTasks.add(new Task("Sport","Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempore debitis suscipit sint cum magni quibusdam veritatis explicabo temporibus officia adipisci vitae, voluptates dolore dignissimos fuga laborum laboriosam molestiae doloribus commodi.","new"));
+        ArrayList<Todo> allTasks = new ArrayList<Todo>();
 
         RecyclerView allTask = findViewById(R.id.rs);
         allTask.setLayoutManager(new LinearLayoutManager(this));
         allTask.setAdapter(new TaskAdapter(allTasks));
+
+
+        Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(@NonNull Message message) {  //It will notify the recyclerview that there are a data changed
+                allTask.getAdapter().notifyDataSetChanged();
+                return false;
+            }
+        });
+
+        Amplify.API.query(
+                ModelQuery.list(com.amplifyframework.datastore.generated.model.Todo.class),
+                response -> {
+
+                    for (Todo todo : response.getData()) {
+                        Log.i("MyAmplifyApp", todo.getTitle());
+                        allTasks.add(todo);
+
+                    }
+                    handler.sendEmptyMessage(1); // send to the handler
+                },
+                error -> Log.e("MyAmplifyApp", "Query failure", error)
+        );
+
 
 
 
