@@ -2,12 +2,17 @@ package com.example.TaskMaster;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.room.Room;
+
+import com.amplifyframework.api.graphql.model.ModelMutation;
+import com.amplifyframework.core.Amplify;
+import com.amplifyframework.datastore.generated.model.Todo;
 
 public class Addtask extends AppCompatActivity {
 AppDataBase appDataBase;
@@ -30,5 +35,18 @@ AppDataBase appDataBase;
                 Toast.makeText(getApplicationContext(), "Submitted!", Toast.LENGTH_LONG).show();
             }
         });
+        Todo todo = Todo.builder()
+                .title(title.getText().toString())
+                .body(body.getText().toString())
+                .state(state.getText().toString())
+                .build();
+
+        Amplify.API.mutate(
+                ModelMutation.create(todo),
+                response -> Log.i("MyAmplifyApp", "Added Todo with id: " + response.getData().getId()),
+                error -> Log.e("MyAmplifyApp", "Create failed", error)
+        );
+
     }
+
 }
