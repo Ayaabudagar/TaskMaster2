@@ -6,21 +6,23 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.api.graphql.model.ModelQuery;
+import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Todo;
 
@@ -36,12 +38,18 @@ AppDataBase appDataBase;
         try {
             // Add these lines to add the AWSApiPlugin plugins
             Amplify.addPlugin(new AWSApiPlugin());
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+
             Amplify.configure(getApplicationContext());
 
             Log.i("MyAmplifyApp", "Initialized Amplify");
         } catch (AmplifyException error) {
             Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
         }
+        Amplify.Auth.fetchAuthSession(
+                result -> Log.i("AmplifyQuickstart", result.toString()),
+                error -> Log.e("AmplifyQuickstart", error.toString())
+        );
 
 
 
@@ -111,8 +119,6 @@ appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "
         ArrayList<Todo> allTasks = new ArrayList<Todo>();
 
         RecyclerView allTask = findViewById(R.id.rs);
-        allTask.setLayoutManager(new LinearLayoutManager(this));
-        allTask.setAdapter(new TaskAdapter(allTasks));
 
 
         Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
@@ -129,6 +135,9 @@ appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "
 
                     for (Todo todo : response.getData()) {
                         Log.i("MyAmplifyApp", todo.getTitle());
+                        Log.i("MyAmplifyApp", todo.getBody());
+                        Log.i("MyAmplifyApp", todo.getState());
+
                         allTasks.add(todo);
 
                     }
@@ -136,6 +145,8 @@ appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "
                 },
                 error -> Log.e("MyAmplifyApp", "Query failure", error)
         );
+        allTask.setLayoutManager(new LinearLayoutManager(this));
+        allTask.setAdapter(new TaskAdapter(allTasks));
 
 
 

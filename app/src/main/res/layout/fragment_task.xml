@@ -6,32 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".TaskFragment">
 
-    <android.support.constraint.ConstraintLayout
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="93dp">-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/itemViewDetail"
         android:layout_width="match_parent"
-        android:layout_height="227dp">
+        android:layout_height="67dp">
 
-        <TextView
+
+<!--    <TextView-->
+<!--            android:id="@+id/taskTitleInFragment"-->
+<!--            android:layout_width="93dp"-->
+<!--            android:layout_height="38dp"-->
+<!--            android:text="taskTitle"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.163"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintVertical_bias="0.322" />-->
+        <Button
             android:id="@+id/taskTitleInFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="taskTitle"
+            android:layout_width="196dp"
+            android:layout_height="48dp"
+            android:text="TaskHolder"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.179"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.103" />
+            app:layout_constraintVertical_bias="0.157" />
 
-        <TextView
-            android:id="@+id/taskBodyInFragment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="taskBody"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.393"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.298" />
-    </android.support.constraint.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>
