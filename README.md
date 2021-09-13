@@ -74,3 +74,23 @@ Add Espresso to the application, and use it to test basic functionality of the m
 assert that important UI elements are displayed on the page
 tap on a task, and assert that the resulting activity displays the name of that task
 edit the user’s username, and assert that it says the correct thing on the homepage
+
+
+## lab 32
+Tasks Are Cloudy
+Using the amplify add api command, create a Task resource that replicates our existing Task schema. Update all references to the Task data to instead use AWS Amplify to access your data in DynamoDB instead of in Room.
+
+Add Task Form
+Modify your Add Task form to save the data entered in as a Task to DynamoDB.
+
+Homepage
+Refactor your homepage’s RecyclerView to display all Task entities in DynamoDB.
+
+
+
+## lab 36
+User Login
+Add Cognito to your Amplify setup. Add in user login and sign up flows to your application, using Cognito’s pre-built UI as appropriate. Display the logged in user’s username somewhere relevant in your app.
+
+User Logout
+Allow users to log out of your application.
