@@ -57,7 +57,7 @@ public class ExampleInstrumentedTest {
     public void checkAllDisplayed() {
         onView(withId(R.id.title)).check((matches(isDisplayed())));
         onView(withId(R.id.taskTitle)).check(matches(isDisplayed()));
-        onView(withId(R.id.taskBodyInFragment)).check(matches(isDisplayed()));
+
     }
     @Test
     public void settingsButton(){
