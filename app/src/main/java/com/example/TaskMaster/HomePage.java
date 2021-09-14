@@ -32,33 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomePage extends AppCompatActivity {
-AppDataBase appDataBase;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
-        Button signOut = findViewById(R.id.signOut);
-        signOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Amplify.Auth.signOut(
-                        () -> Log.i("AuthQuickstart", "Signed out successfully"),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );
-            }
-        });
-        try {
-            // Add these lines to add the AWSApiPlugin plugins
-            Amplify.addPlugin(new AWSApiPlugin());
-            Amplify.addPlugin(new AWSCognitoAuthPlugin());
-
-            Amplify.configure(getApplicationContext());
-
-            Log.i("MyAmplifyApp", "Initialized Amplify");
-        } catch (AmplifyException error) {
-            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
-        }
-
+    public void singIn(){
         AuthSignUpOptions options = AuthSignUpOptions.builder()
                 .userAttribute(AuthUserAttributeKey.email(), "haneenalwatan993@gmail.com")
                 .build();
@@ -84,14 +58,46 @@ AppDataBase appDataBase;
                 error -> Log.e("AuthQuickStart", error.toString())
         );
 
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_homepage);
+        try {
+            // Add these lines to add the AWSApiPlugin plugins
+            Amplify.addPlugin(new AWSApiPlugin());
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+
+            Amplify.configure(getApplicationContext());
+
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
+        singIn();
+        Button signOut = findViewById(R.id.signOut);
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Amplify.Auth.signOut(
+                        () -> { singIn();
+                            Log.i("AuthQuickstart", "Signed out successfully");},
+
+                        error -> Log.e("AuthQuickstart", error.toString())
+                );
+            }
+        });
 
 
 
 
 
 
-        appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
-        .build();
+
+
+//
+//        appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
+//        .build();
 //        List<Task> taskList = appDataBase.taskDao().getAll();
 //        // get the recycler view
 //        RecyclerView allTasksRecuclerView = findViewById(R.id.rs);
@@ -191,11 +197,12 @@ AppDataBase appDataBase;
     @Override
     protected void onResume() {
         super.onResume();
-        String welcomeMessage = "Welcome ";
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
-        String instructorName = sharedPreferences.getString("instructorName", "Instructor");
+        String userTaskMessage = "’s tasks";
+
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+//        String instructorName = sharedPreferences.getString("instructorName", "Instructor");
         TextView instructorNameView = findViewById(R.id.textView14);
-        instructorNameView.setText( instructorName + "s tasks");
+        instructorNameView.setText( com.amazonaws.mobile.client.AWSMobileClient.getInstance().getUsername()+userTaskMessage );
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
