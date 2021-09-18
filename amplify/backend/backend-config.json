@@ -40,5 +40,19 @@
         ]
       }
     }
+  },
+  "notifications": {
+    "TaskMaster26WskJ": {
+      "service": "Pinpoint",
+      "channels": [
+        "FCM"
+      ]
+    }
+  },
+  "storage": {
+    "taskresource": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }

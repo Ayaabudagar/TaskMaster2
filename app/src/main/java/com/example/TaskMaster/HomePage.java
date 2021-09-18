@@ -1,5 +1,6 @@
 package com.example.TaskMaster;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -19,6 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.Callback;
+import com.amazonaws.mobile.client.UserStateDetails;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointConfiguration;
+import com.amazonaws.mobileconnectors.pinpoint.PinpointManager;
 import com.amplifyframework.AmplifyException;
 import com.amplifyframework.api.aws.AWSApiPlugin;
 import com.amplifyframework.api.graphql.model.ModelQuery;
@@ -27,38 +34,72 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthPlugin;
 import com.amplifyframework.auth.options.AuthSignUpOptions;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Todo;
+import com.amplifyframework.storage.s3.AWSS3StoragePlugin;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomePage extends AppCompatActivity {
-AppDataBase appDataBase;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_homepage);
-        Button signOut = findViewById(R.id.signOut);
-        signOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Amplify.Auth.signOut(
-                        () -> Log.i("AuthQuickstart", "Signed out successfully"),
-                        error -> Log.e("AuthQuickstart", error.toString())
-                );
-            }
-        });
-        try {
-            // Add these lines to add the AWSApiPlugin plugins
-            Amplify.addPlugin(new AWSApiPlugin());
-            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+    public static final String TAG = HomePage.class.getSimpleName();
 
-            Amplify.configure(getApplicationContext());
+    private static PinpointManager pinpointManager;
 
-            Log.i("MyAmplifyApp", "Initialized Amplify");
-        } catch (AmplifyException error) {
-            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+    public static PinpointManager getPinpointManager(final Context applicationContext) {
+        if (pinpointManager == null) {
+            final AWSConfiguration awsConfig = new AWSConfiguration(applicationContext);
+            AWSMobileClient.getInstance().initialize(applicationContext, awsConfig, new Callback<UserStateDetails>() {
+                @Override
+                public void onResult(UserStateDetails userStateDetails) {
+                    Log.i("INIT", String.valueOf(userStateDetails.getUserState()));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.e("INIT", "Initialization error.", e);
+                }
+            });
+
+            PinpointConfiguration pinpointConfig = new PinpointConfiguration(
+                    applicationContext,
+                    AWSMobileClient.getInstance(),
+                    awsConfig);
+
+            pinpointManager = new PinpointManager(pinpointConfig);
+
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull com.google.android.gms.tasks.Task<String> task) {
+                            if (!task.isSuccessful()) {
+                                Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                                return;
+                            }
+                            final String token = task.getResult();
+                            Log.d(TAG, "Registering push notifications token: " + token);
+                            pinpointManager.getNotificationClient().registerDeviceToken(token);
+                        }
+                    });
         }
+        return pinpointManager;
+    }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void singIn(){
         AuthSignUpOptions options = AuthSignUpOptions.builder()
                 .userAttribute(AuthUserAttributeKey.email(), "haneenalwatan993@gmail.com")
                 .build();
@@ -84,14 +125,48 @@ AppDataBase appDataBase;
                 error -> Log.e("AuthQuickStart", error.toString())
         );
 
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_homepage);
+        try {
+            // Add these lines to add the AWSApiPlugin plugins
+            Amplify.addPlugin(new AWSApiPlugin());
+            Amplify.addPlugin(new AWSCognitoAuthPlugin());
+            Amplify.addPlugin(new AWSS3StoragePlugin());
+            getPinpointManager(getApplicationContext());
+            Amplify.configure(getApplicationContext());
+
+            Log.i("MyAmplifyApp", "Initialized Amplify");
+        } catch (AmplifyException error) {
+            Log.e("MyAmplifyApp", "Could not initialize Amplify", error);
+        }
+
+        singIn();
+        Button signOut = findViewById(R.id.signOut);
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Amplify.Auth.signOut(
+                        () -> { singIn();
+                            Log.i("AuthQuickstart", "Signed out successfully");},
+
+                        error -> Log.e("AuthQuickstart", error.toString())
+                );
+            }
+        });
 
 
 
 
 
 
-        appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
-        .build();
+
+
+//
+//        appDataBase = Room.databaseBuilder(getApplicationContext(), AppDataBase.class, "tasks").allowMainThreadQueries()
+//        .build();
 //        List<Task> taskList = appDataBase.taskDao().getAll();
 //        // get the recycler view
 //        RecyclerView allTasksRecuclerView = findViewById(R.id.rs);
@@ -191,11 +266,12 @@ AppDataBase appDataBase;
     @Override
     protected void onResume() {
         super.onResume();
-        String welcomeMessage = "Welcome ";
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
-        String instructorName = sharedPreferences.getString("instructorName", "Instructor");
+        String userTaskMessage = "’s tasks";
+
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+//        String instructorName = sharedPreferences.getString("instructorName", "Instructor");
         TextView instructorNameView = findViewById(R.id.textView14);
-        instructorNameView.setText( instructorName + "s tasks");
+        instructorNameView.setText( com.amazonaws.mobile.client.AWSMobileClient.getInstance().getUsername()+userTaskMessage );
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
