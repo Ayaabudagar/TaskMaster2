@@ -3,4 +3,6 @@ type Todo @model {
   title: String!
   body: String
   state: String
+   img : String
+
 }
