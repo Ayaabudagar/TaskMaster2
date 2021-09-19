@@ -67,6 +67,19 @@ Refactor your homepage to use a RecyclerView for displaying Task data. This shou
 ## lab 29
 Saving Data with Room
 
+**Feature Tasks**
+1. **Task Model and Room**
+- Following the directions provided in the Android documentation, set up Room in your application, and modify your Task class to be an Entity.
+
+2. **Add Task Form**
+- Modify your Add Task form to save the data entered in as a Task in your local database.
+
+3. **Homepage**
+- Refactor your homepage’s RecyclerView to display all Task entities in your database.
+
+4. **Detail Page**
+- Ensure that the description and status of a tapped task are also displayed on the detail page, in addition to the title. (Note that you can accomplish this by passing along the entire Task entity, or by passing along only its ID in the intent.)
+
 ## lab 31
 Espresso Testing
 Add Espresso to the application, and use it to test basic functionality of the main components of my application. For example:
@@ -94,3 +107,24 @@ Add Cognito to your Amplify setup. Add in user login and sign up flows to your a
 
 User Logout
 Allow users to log out of your application.
+
+
+## **Lab37**
+
+- **Feature Tasks**
+    1. Uploads
+       On the “Add a Task” activity, allow users to optionally select a file to attach to that task. If a user attaches a file to a task, that file should be uploaded to S3, and associated with that task.
+
+       <!-- Implementing a File Picker in Android and copying the selected file to another location -->
+
+    2.  Displaying Files
+       On the Task detail activity, if there is a file that is an image associated with a particular Task, that image should be displayed within that activity. (If the file is any other type, you should display a link to it.)
+
+
+
+## **Lab41**
+- **Feature Tasks**
+  - Adding a Task from Another Application
+  - Add an intent filter to your application such that a user can hit the “share” button on a text in another application, choose TaskMaster as the app to share that image with, and be taken directly to the Add a Task activity with that text pre-selected.
+
+
