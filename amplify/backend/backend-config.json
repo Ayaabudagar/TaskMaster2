@@ -18,6 +18,7 @@
     }
   },
   "auth": {
+
     "taskmaster2abd9fc55": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",

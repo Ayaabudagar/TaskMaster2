@@ -17,16 +17,24 @@ import com.amplifyframework.api.graphql.model.ModelMutation;
 import com.amplifyframework.core.Amplify;
 import com.amplifyframework.datastore.generated.model.Todo;
 
+
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class Addtask extends AppCompatActivity {
 AppDataBase appDataBase;
+String bodyFromAnotherApp ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtask);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        Intent recive = getIntent();
+        if(recive.getType() != null && recive.getType().equals("text/plain")){
+            Log.i("Hello world" , recive.getExtras().get(Intent.EXTRA_TEXT).toString());
+            bodyFromAnotherApp=recive.getExtras().get(Intent.EXTRA_TEXT).toString();
+        }
         final EditText title = findViewById(R.id.taskTitle);
         final EditText body = findViewById(R.id.descreption);
         final EditText state = findViewById(R.id.taskstate);
@@ -34,10 +42,15 @@ AppDataBase appDataBase;
         addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                String bodyText;
+if(bodyFromAnotherApp != null ){
+    bodyText = bodyFromAnotherApp;
+}else {
+    bodyText=body.getText().toString();
+}
                 Todo todo = Todo.builder()
                         .title(title.getText().toString())
-                        .body(body.getText().toString())
+                        .body(bodyText)
                         .state(state.getText().toString())
                         .build();
 
@@ -68,13 +81,16 @@ AppDataBase appDataBase;
 //        startActivity(chooseFile);
         startActivityForResult(chooseFile, 1234);
     }
+
     // upload img from input stream to amplify
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println(data+"==============================================");
         try {
             //getdata from intent and set it inside inputStream
+            if(data !=null) {
             InputStream imgInputStream = getContentResolver().openInputStream(data.getData());
             //add data to amplify
             Amplify.Storage.uploadInputStream(
@@ -83,6 +99,7 @@ AppDataBase appDataBase;
                     result -> Log.i("MyAmplifyApp", "Successfully uploaded: " + result.getKey()),
                     storageFailure -> Log.e("MyAmplifyApp", "Upload failed", storageFailure)
             );
+            }
         } catch (FileNotFoundException error) {
             Log.e("MyAmplifyApp", "Could not find file to open for input stream.", error);
         }
