@@ -53,6 +53,6 @@
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
     "dependsOn": [],
-    "hostedUI": false,
+    "hostedUI": true,
     "authProviders": []
 }

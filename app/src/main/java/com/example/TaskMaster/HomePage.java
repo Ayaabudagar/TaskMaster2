@@ -120,7 +120,7 @@ public class HomePage extends AppCompatActivity {
 //                error -> Log.e("AuthQuickstart", error.toString())
 //        );
         Amplify.Auth.signInWithWebUI(
-                this,
+                HomePage.this,
                 result -> Log.i("AuthQuickStart", result.toString()),
                 error -> Log.e("AuthQuickStart", error.toString())
         );
